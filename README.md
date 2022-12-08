@@ -44,3 +44,7 @@
 - Lack of input validation checks
 - Insecure 3 rd party libraries
 - File system access for web views
+
+### Possible stories
+- if it requests URL for Facebook is it less secure?
+- if it requrests to more URLs is it less secure?

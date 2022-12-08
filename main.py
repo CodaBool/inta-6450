@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 append_tasks = True
+write_results = False
 path = "./data"
 out_dir = "./results/"
 dir_list = os.listdir(path)
@@ -22,8 +23,19 @@ for file_name in os.listdir(path):
     assessment = app['assessment']  
     obj['publisher'] = assessment['publisherName']
     obj['platform'] = assessment['platformType']
+    obj['score'] = assessment['report']['score']
+    is_game = False
+
+    # is a game
+    if ('game' in obj['publisher'].lower() or
+        'game' in app['title'].lower() or
+        'puzzle' in app['title'].lower() or
+        'puzzle' in obj['publisher'].lower()):
+      is_game = True
     if append_tasks:
       obj['tasks'] = []
+      permissions = None
+      urls = None
       for task_type, value in assessment['analysis']['task'].items():
         if value is None:
           continue
@@ -41,11 +53,31 @@ for file_name in os.listdir(path):
           task_obj['type'] = task_type
           task_obj['task'] = task
           obj['tasks'].append(task_obj)
-      print("       ", len(obj['tasks']), 'tasks')
+
+          # Permissions
+          if task == "myall":
+            permissions = task_output['manifest']['print_permissions']['total']
+          # Urls
+          if task == "yaap_data":
+            urls = task_output['urls']['info']['urls']['data']
+
+    # Permissions
+    if permissions:
+      print("       ", permissions, 'permissions')
+    if urls:
+      print("       ", len(urls), 'urls')
+
+    # Game
+    if is_game:
+      print("        is a game")
+    else:
+      print("        is not a game")
+
+    print("       ", obj['score'], 'score')
     obj['findings'] = app['assessment']['report']['findings']
-    print("       ", len(obj['findings']), 'findings')
     outlist.append(obj)
       
-  json_obj = json.dumps(outlist, indent=2)
-  with open(out_dir + file_name[:8]  + "-format.json", "w") as outfile:
-    outfile.write(json_obj)
+  if write_results:
+    json_obj = json.dumps(outlist, indent=2)
+    with open(out_dir + file_name[:8]  + "-format.json", "w") as outfile:
+      outfile.write(json_obj)
