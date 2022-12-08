@@ -48,3 +48,13 @@
 ### Possible stories
 - if it requests URL for Facebook is it less secure?
 - if it requrests to more URLs is it less secure?
+
+
+file_name
+urls
+permissions amount
+vulnerabilities
+game bool (improve this)
+score
+obj['title']
+obj['publisher']

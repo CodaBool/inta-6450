@@ -34,18 +34,19 @@ for file_name in os.listdir(path):
     doc = json.load(open(path + "/" + file_name, encoding='utf-8'))
   except json.JSONDecodeError as e:
     print(e) 
-  outlist = [] 
+  output = [] 
   for app in doc:
     print("     ", app['title'])
-    obj = {}
-    obj['title'] = app['title']
-    assessment = app['assessment']  
-    obj['publisher'] = assessment['publisherName']
-    obj['platform'] = assessment['platformType']
-    obj['score'] = assessment['report']['score']
+    obj = {
+      'title': app['title'],
+      'publisher': app['assessment']['publisherName'],
+      'platform': app['assessment']['platformType'],
+      'score': app['assessment']['report']['score']
+    }
+    # Check if the app is a game
+    # TODO: scrape data from https://www.appbrain.com/stats/google-play-rankings
+    # and compare the app name against this data to determine if a game
     is_game = False
-
-    # is a game
     if ('game' in obj['publisher'].lower() or
         'game' in app['title'].lower() or
         'puzzle' in app['title'].lower() or
@@ -55,30 +56,30 @@ for file_name in os.listdir(path):
       obj['tasks'] = []
       permissions = None
       urls = None
-      for task_type, value in assessment['analysis']['task'].items():
+      for task_type, value in app['assessment']['analysis']['task'].items():
         if value is None:
           continue
         result_location = value['result']
         if task_type == 'yaapStatic':
           result_location = value['result'][0]
-        for task, task_output in result_location.items():
+        for task, data in result_location.items():
           task_obj = {}
-          if not task_output:
+          if not data:
             continue
-          if type(task_output) == list:
-            task_obj['data'] = task_output[0] 
+          if type(data) == list:
+            task_obj['data'] = data[0] 
           else:
-            task_obj['data'] = task_output   
+            task_obj['data'] = data   
           task_obj['type'] = task_type
           task_obj['task'] = task
           obj['tasks'].append(task_obj)
 
           # Permissions
           if task == "myall":
-            permissions = task_output['manifest']['print_permissions']['total']
+            permissions = data['manifest']['print_permissions']['total']
           # Urls
           if task == "yaap_data":
-            urls = task_output['urls']['info']['urls']['data']
+            urls = data['urls']['info']['urls']['data']
 
     # Permissions
     if permissions:
@@ -102,9 +103,10 @@ for file_name in os.listdir(path):
         if check == find['checkId'] and find['affected']:
           print("         -", check)
       
-    outlist.append(obj)
+    output.append(obj)
       
   if write_results:
-    json_obj = json.dumps(outlist, indent=2)
+    print(len(urls))
+    json_obj = json.dumps(output, indent=2)
     with open(out_dir + file_name[:8]  + "-format.json", "w") as outfile:
       outfile.write(json_obj)
