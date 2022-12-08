@@ -118,7 +118,7 @@ for file_name in os.listdir(path):
   for app in output:
     del app['tasks']
     del app['findings']
-  main_output.append(output[0])
+    main_output.append(app)
       
 # Write in JSON
 json_obj = json.dumps(main_output, indent=2)
