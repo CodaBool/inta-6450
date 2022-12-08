@@ -3,13 +3,20 @@
 
 # Running Locally
 1. Add json files to data folder
-2. Create a python Virtual Environment
-  ### Unix
-  1. `python3 -m venv venv`
-  2. `source venv/bin/activate`
-  ### Windows
-  1. `python -m venv venv`
-  2. `source venv/Scripts/activate`
+<details>
+<summary>2. Create a python Virtual Environment</summary>
+<h3>Unix</h3>
+
+1. `python3 -m venv venv`
+
+2. `source venv/bin/activate`
+<h3>Windows</h3>
+
+1. `python -m venv venv`
+
+2. `source venv/Scripts/activate`
+</details>
+  
 
 3. Install requirements `pip install -r requirements.txt`
 
