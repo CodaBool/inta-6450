@@ -1,3 +1,6 @@
+# TODO
+- better way of detecting if an app is a game
+
 # Running Locally
 1. Add json files to data folder
 2. Create a python Virtual Environment
@@ -48,13 +51,3 @@
 ### Possible stories
 - if it requests URL for Facebook is it less secure?
 - if it requrests to more URLs is it less secure?
-
-
-file_name
-urls
-permissions amount
-vulnerabilities
-game bool (improve this)
-score
-obj['title']
-obj['publisher']

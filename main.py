@@ -1,6 +1,6 @@
 import os
 import json
-# import pandas as pd
+import pandas as pd
 from pathlib import Path
 
 path = "./data"
@@ -120,6 +120,11 @@ for file_name in os.listdir(path):
     del app['findings']
   main_output.append(output[0])
       
+# Write in JSON
 json_obj = json.dumps(main_output, indent=2)
 with open(out_dir + "main.json", "w") as outfile:
   outfile.write(json_obj)
+
+# Write in CSV
+df = pd.read_json(json_obj)
+df.to_csv(out_dir + 'main.csv', encoding='utf-8', index=False)
