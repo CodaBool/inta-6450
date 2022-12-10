@@ -1,13 +1,13 @@
 import os
 import json
 import pandas as pd
-from pathlib import Path
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 path = "./data"
 out_dir = "./results/"
 dir_list = os.listdir(path)
-# There are too many leaked_logcat_data_ to select for all of them
-# I only grab 4 here
+
 list_of_relevant_findings = [
   'zip_file_in_transit_check_broken_ssl',
   'broken_ssl',
@@ -125,6 +125,36 @@ json_obj = json.dumps(main_output, indent=2)
 with open(out_dir + "main.json", "w") as outfile:
   outfile.write(json_obj)
 
-# Write in CSV
+# Load into Pandas
 df = pd.read_json(json_obj)
+
+# Write in CSV
 df.to_csv(out_dir + 'main.csv', encoding='utf-8', index=False)
+
+# correlation
+print("correlation between urls & security", df['score'].corr(df['urls']))
+print("correlation between permissions & security", df['score'].corr(df['permissions']))
+print("correlation between being a game & security", df['score'].corr(df['game']))
+
+# positive means when one goes up the other does too
+# negative means when one goes down the other goes up
+#  0 - .2 very weak
+# .2 - .4 weak
+
+# scatter graph urls
+plt.rcParams.update({'figure.figsize':(10,8), 'figure.dpi':100})
+sns.lmplot(x='urls', y='score', data=df)
+plt.title("Are apps that have more URL Requests less secure?");
+plt.show()
+
+# scatter graph permissions
+plt.rcParams.update({'figure.figsize':(10,8), 'figure.dpi':100})
+sns.lmplot(x='permissions', y='score', data=df)
+plt.title("Are apps that have more permissions less secure?");
+plt.show()
+
+# scatter graph game
+plt.rcParams.update({'figure.figsize':(10,8), 'figure.dpi':100})
+sns.lmplot(x='game', y='score', data=df)
+plt.title("Are games less secure?");
+plt.show()
