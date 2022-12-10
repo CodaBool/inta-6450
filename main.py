@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 path = "./data"
 out_dir = "./results/"
 dir_list = os.listdir(path)
-
+main_output = []
 list_of_relevant_findings = [
   'zip_file_in_transit_check_broken_ssl',
   'broken_ssl',
@@ -27,9 +27,10 @@ list_of_relevant_findings = [
   'writable_executable_files_check',
 ]
 
-main_output = []
 for file_name in os.listdir(path):
   print("==>", file_name)
+
+  # Read JSON file
   try:
     doc = json.load(open(path + "/" + file_name, encoding='utf-8'))
   except json.JSONDecodeError as e:
@@ -43,9 +44,8 @@ for file_name in os.listdir(path):
       'publisher': app['assessment']['publisherName'],
       'score': app['assessment']['report']['score']
     }
+
     # Check if the app is a game
-    # TODO: scrape data from https://www.appbrain.com/stats/google-play-rankings
-    # and compare the app name against this data to determine if a game
     is_game = False
     if ('game' in obj['publisher'].lower() or
         'game' in app['title'].lower() or
@@ -55,6 +55,8 @@ for file_name in os.listdir(path):
     obj['tasks'] = []
     permissions = None
     urls = None
+
+    # Iterate over tasks
     for task_type, value in app['assessment']['analysis']['task'].items():
       if value is None:
         continue
@@ -62,6 +64,8 @@ for file_name in os.listdir(path):
       if task_type == 'yaapStatic':
         result_location = value['result'][0]
       for task, data in result_location.items():
+
+        # Add Task
         task_obj = {}
         if not data:
           continue
@@ -86,9 +90,6 @@ for file_name in os.listdir(path):
       obj['permissions'] = permissions
     if urls:
       print("       ", len(urls), 'urls')
-      # change this to 
-      # obj['urls'] = urls
-      # if you want the full list of urls
       obj['urls'] = len(urls)
 
     # Game
@@ -106,21 +107,19 @@ for file_name in os.listdir(path):
     obj['targets'] = []
     for find in app['assessment']['report']['findings']:
       for check in list_of_relevant_findings:
-        # There are too many leaked_logcat_data_ to select for all of them
-        # if 'leaked_logcat_data_' in check or check == find['checkId'] and find['affected']:
         if check == find['checkId'] and find['affected']:
           print("         -", check)
           obj['targets'].append(check)
       
     output.append(obj)
 
-  # Trim output
+  # Trim irrelevant output
   for app in output:
     del app['tasks']
     del app['findings']
     main_output.append(app)
       
-# Write in JSON
+# Write to JSON
 json_obj = json.dumps(main_output, indent=2)
 with open(out_dir + "main.json", "w") as outfile:
   outfile.write(json_obj)
@@ -128,7 +127,7 @@ with open(out_dir + "main.json", "w") as outfile:
 # Load into Pandas
 df = pd.read_json(json_obj)
 
-# Write in CSV
+# Write to CSV
 df.to_csv(out_dir + 'main.csv', encoding='utf-8', index=False)
 
 # correlation
