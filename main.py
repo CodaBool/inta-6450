@@ -46,6 +46,7 @@ for file_name in os.listdir(path):
     }
 
     # Check if the app is a game
+    # TODO: this data should be scraped instead
     is_game = False
     if ('game' in obj['publisher'].lower() or
         'game' in app['title'].lower() or
